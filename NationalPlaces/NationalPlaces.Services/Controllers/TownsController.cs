@@ -35,5 +35,35 @@ namespace NationalPlaces.Services.Controllers
                 return response;
             }
         }
+
+        [HttpGet]
+        [ActionName("getTownsAndPlaces")]
+        public HttpResponseMessage GetTownsAndPlaces()
+        {
+            try
+            {
+                var context = new NationalPlacesContext();
+                var allTowns = from town in context.Towns
+                               select new TownsAndPlacesModel()
+                               {
+                                   TownName = town.Name,
+                                   Places = from place in town.Places
+                                            select new NationalPlaceModel()
+                                                       {
+                                                           Id = place.Id,
+                                                           Name = place.Name,
+                                                           PictureUrl = place.PictureUrl
+                                                       }
+                               };
+                var response = this.Request.CreateResponse(HttpStatusCode.OK, allTowns);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.BadRequest,
+                                             ex.Message);
+                return response;
+            }
+        }
     }
 }

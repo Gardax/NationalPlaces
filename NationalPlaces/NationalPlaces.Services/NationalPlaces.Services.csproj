@@ -170,6 +170,7 @@
     <Compile Include="Controllers\NationalPlacesController.cs" />
     <Compile Include="Models\NationalPlaceModel.cs" />
     <Compile Include="Models\TownModel.cs" />
+    <Compile Include="Models\TownsAndPlacesModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
