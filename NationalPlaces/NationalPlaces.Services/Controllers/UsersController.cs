@@ -158,6 +158,61 @@ namespace NationalPlaces.Services.Controllers
             }
         }
 
+        [HttpPost]
+        [ActionName("addPicture")]
+        public HttpResponseMessage addPicture(string sessionKey, string url)
+        {
+            try
+            {
+                var contex = new NationalPlacesContext();
+                var user = contex.Users.FirstOrDefault(u => u.SessionKey == sessionKey);
+                if (user==null)
+                {
+                    throw  new Exception("You must be logged in to upload picture.");
+                }
+                user.Pictures.Add(new Picture()
+                                      {
+                                          PictureUrl = url
+                                      });
+                contex.SaveChanges();
+
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                return response;
+            }
+        }
+
+        [HttpPost]
+        [ActionName("addProfilePicture")]
+        public HttpResponseMessage addProfilePicture(string sessionKey, string url)
+        {
+            try
+            {
+                var contex = new NationalPlacesContext();
+                var user = contex.Users.FirstOrDefault(u => u.SessionKey == sessionKey);
+                if (user == null)
+                {
+                    throw new Exception("You must be logged in to upload picture.");
+                }
+                user.ProfilePictureUrl = url;
+                contex.SaveChanges();
+
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                return response;
+            }
+        }
+
         private void ValidateAuthCode(string authCode)
         {
             if (authCode == null || authCode.Length != Sha1Length)

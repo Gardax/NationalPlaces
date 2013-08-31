@@ -38,6 +38,7 @@ namespace NationalPlaces.Services.Controllers
                                               {
                                                   Name = place.Town,
                                               });
+                        context.SaveChanges();
                     }
 
                     Place newPlace = new Place()
@@ -55,6 +56,84 @@ namespace NationalPlaces.Services.Controllers
                 }
             }
             catch(Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                return response;
+            }
+        }
+
+        [HttpPost]
+        [ActionName("getPlacesByTownId")]
+        public HttpResponseMessage GetPlacesByTownId(int townId)
+        {
+            try
+            {
+                var context = new NationalPlacesContext();
+                var allPlaces = from place in context.Towns.FirstOrDefault(t => t.Id == townId).Places
+                                select new NationalPlaceModel()
+                                           {
+                                               Id = place.Id,
+                                               Name=place.Name,
+                                               PictureUrl = place.PictureUrl
+                                           };
+                var response = this.Request.CreateResponse(HttpStatusCode.OK, allPlaces);
+                return response;
+            }
+            catch(Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                return response;
+            }
+        }
+
+        [HttpPost]
+        [ActionName("getPlaceDetails")]
+        public HttpResponseMessage GetPlaceDetails(int placeId)
+        {
+            try
+            {
+                var context = new NationalPlacesContext();
+                var place = context.Places.FirstOrDefault(p => p.Id == placeId);
+                var placeDetails = new NationalPlaceModel()
+                                       {
+                                           Id = place.Id,
+                                           Name = place.Name,
+                                           Description = place.Description,
+                                           PictureUrl = place.PictureUrl,
+                                           Town = place.Town.Name
+                                       };
+
+                var response = this.Request.CreateResponse(HttpStatusCode.OK, placeDetails);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                return response;
+            }
+        }
+
+        [HttpPost]
+        [ActionName("checkIn")]
+        public HttpResponseMessage CheckIn(string sessionKey, int placeId)
+        {
+            try
+            {
+                var context = new NationalPlacesContext();
+                var user = context.Users.FirstOrDefault(u => u.SessionKey == sessionKey);
+                if(user==null)
+                {
+                    throw new Exception("You must be logged in to check in.");
+                }
+
+                var place = context.Places.FirstOrDefault(p => p.Id == placeId);
+                place.Users.Add(user);
+                context.SaveChanges();
+
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+                return response;
+            }
+            catch (Exception ex)
             {
                 var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
                 return response;
