@@ -36,7 +36,7 @@ namespace NationalPlaces.Services.Controllers
                     {
                         town=context.Towns.Add(new Town()
                                               {
-                                                  Name = place.Name,
+                                                  Name = place.Town,
                                               });
                     }
 
