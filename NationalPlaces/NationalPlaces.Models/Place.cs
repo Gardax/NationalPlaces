@@ -16,5 +16,12 @@ namespace NationalPlaces.Models
         public Town Town { get; set; }
 
         public string PictureUrl { get; set; }
+
+        public virtual ICollection<User> Visitors { get; set; }
+ 
+        public Place()
+        {
+            this.Visitors=new HashSet<User>();
+        }
     }
 }
