@@ -17,11 +17,11 @@ namespace NationalPlaces.Models
 
         public string PictureUrl { get; set; }
 
-        public virtual ICollection<User> Visitors { get; set; }
+        public virtual ICollection<User> Users { get; set; }
  
         public Place()
         {
-            this.Visitors=new HashSet<User>();
+            this.Users=new HashSet<User>();
         }
     }
 }

@@ -27,12 +27,12 @@ namespace NationalPlaces.Models
 
         public virtual ICollection<Picture> Pictures { get; set; }
 
-        public virtual ICollection<Place> VisitedPlaces { get; set; } 
+        public virtual ICollection<Place> Places { get; set; } 
 
         public User()
         {
             this.Pictures = new HashSet<Picture>();
-            this.VisitedPlaces=new HashSet<Place>();
+            this.Places=new HashSet<Place>();
         }
     }
 }
