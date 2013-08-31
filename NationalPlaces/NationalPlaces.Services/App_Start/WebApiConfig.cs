@@ -10,6 +10,16 @@ namespace NationalPlaces.Services
         public static void Register(HttpConfiguration config)
         {
             config.Routes.MapHttpRoute(
+                name: "Towns",
+                routeTemplate: "api/towns/{action}/{sessionKey}",
+                defaults: new
+                {
+                    controller = "Towns",
+                    sessionKey = RouteParameter.Optional
+                }
+                );
+
+            config.Routes.MapHttpRoute(
                 name: "Places",
                 routeTemplate: "api/places/{action}/{sessionKey}",
                 defaults: new
