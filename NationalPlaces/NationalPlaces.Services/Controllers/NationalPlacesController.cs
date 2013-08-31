@@ -49,7 +49,7 @@ namespace NationalPlaces.Services.Controllers
                                          };
 
                     context.Places.Add(newPlace);
-
+                    context.SaveChanges();
                     var response = this.Request.CreateResponse(HttpStatusCode.Created);
                     return response;
                 }
