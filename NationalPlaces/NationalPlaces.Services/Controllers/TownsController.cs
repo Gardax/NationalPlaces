@@ -46,6 +46,7 @@ namespace NationalPlaces.Services.Controllers
                 var allTowns = from town in context.Towns
                                select new TownsAndPlacesModel()
                                {
+                                   Id=town.Id,
                                    TownName = town.Name,
                                    Places = from place in town.Places
                                             select new NationalPlaceModel()
