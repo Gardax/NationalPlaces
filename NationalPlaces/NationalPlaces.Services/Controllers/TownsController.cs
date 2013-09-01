@@ -52,7 +52,9 @@ namespace NationalPlaces.Services.Controllers
                                                        {
                                                            Id = place.Id,
                                                            Name = place.Name,
-                                                           PictureUrl = place.PictureUrl
+                                                           PictureUrl = place.PictureUrl,
+                                                           Description = place.Description,
+                                                           Town = place.Town.Name
                                                        }
                                };
                 var response = this.Request.CreateResponse(HttpStatusCode.OK, allTowns);
