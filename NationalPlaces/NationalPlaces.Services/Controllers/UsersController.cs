@@ -57,7 +57,9 @@ namespace NationalPlaces.Services.Controllers
                     {
                         Username = usernameToLower,
                         Name = model.Name,
-                        AuthCode = model.AuthCode
+                        AuthCode = model.AuthCode,
+                        ProfilePictureUrl = model.ProfilePictureUrl
+
                     };
 
                     dbContext.Users.Add(user);
