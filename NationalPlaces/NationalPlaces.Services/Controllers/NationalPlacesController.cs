@@ -128,11 +128,21 @@ namespace NationalPlaces.Services.Controllers
                     throw new Exception("You must be logged in to check in.");
                 }
 
-                var place = context.Places.FirstOrDefault(p => IsInProximity(p.Latitude, p.Longitude, latitude, longitude));
-                place.Users.Add(user);
+                NationalPlaceModel nearbyPlace=new NationalPlaceModel();
+                foreach (var place in context.Places)
+                {
+                    if (IsInProximity(place.Latitude, place.Longitude, latitude, longitude))
+                    {
+                        place.Users.Add(user);
+                        nearbyPlace.Id = place.Id;
+                        nearbyPlace.Name = place.Name;
+                        break;
+                    }
+                }
+                
                 context.SaveChanges();
-
-                var response = this.Request.CreateResponse(HttpStatusCode.OK, "You are checked in from :"+place.Name);
+                context.Dispose();
+                var response = this.Request.CreateResponse(HttpStatusCode.OK, "You are checked in from: "+nearbyPlace.Name);
                 return response;
             }
             catch (Exception ex)
