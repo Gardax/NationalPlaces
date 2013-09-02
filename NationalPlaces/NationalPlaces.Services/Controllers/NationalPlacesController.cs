@@ -117,7 +117,7 @@ namespace NationalPlaces.Services.Controllers
 
         [HttpPost]
         [ActionName("checkIn")]
-        public HttpResponseMessage CheckIn(string sessionKey, int placeId)
+        public HttpResponseMessage CheckIn(string sessionKey, double latitude, double longitude)
         {
             try
             {
@@ -127,13 +127,22 @@ namespace NationalPlaces.Services.Controllers
                 {
                     throw new Exception("You must be logged in to check in.");
                 }
-
-                var place=context.Places.FirstOrDefault(p => p.Id == placeId);
-                place.Users.Add(user);
-                context.SaveChanges();
-                var response = this.Request.CreateResponse(HttpStatusCode.OK,
-                                                           "You are checked in from: " + place.Name);
-                return response;
+                int? placeId = GetNearbyPlace(latitude, longitude);
+                if (placeId != null)
+                {
+                    var place = context.Places.FirstOrDefault(p => p.Id == placeId);
+                    place.Users.Add(user);
+                    context.SaveChanges();
+                    var response = this.Request.CreateResponse(HttpStatusCode.OK,
+                                                               "You are checked in from: " + place.Name);
+                    return response;
+                }
+                else
+                {
+                    var response = this.Request.CreateResponse(HttpStatusCode.BadRequest,
+                                                               "You are not close to any place of the application!");
+                    return response;
+                }
 
             }
             catch (Exception ex)
@@ -143,36 +152,30 @@ namespace NationalPlaces.Services.Controllers
             }
         }
 
-        [HttpGet]
-        [ActionName("nearbyPlaces")]
-        public HttpResponseMessage GetNearbyPlaces(double latitude, double longitude)
+        //[HttpGet]
+        //[ActionName("nearbyPlaces")]
+        public int? GetNearbyPlace(double latitude, double longitude)
         {
-            try
-            {
-                var context = new NationalPlacesContext();
-                List<NationalPlaceModel> models = new List<NationalPlaceModel>();
-                foreach (var place in context.Places)
-                {
-                    if (IsInProximity(place.Latitude, place.Longitude, latitude, longitude))
-                    {
 
-                        NationalPlaceModel currentModel = new NationalPlaceModel();
-                        currentModel.Id = place.Id;
-                        currentModel.Name = place.Name;
-                        models.Add(currentModel);
-                    }
-                }
-                var response = this.Request.CreateResponse(HttpStatusCode.OK, models);
-                return response;
-            }
-            catch (Exception ex)
+            var context = new NationalPlacesContext();
+            NationalPlaceModel nearbyPlace = new NationalPlaceModel();
+            double minDistance = double.MaxValue;
+            foreach (var place in context.Places)
             {
-                var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-                return response;
+                double distance = IsInProximity(place.Latitude, place.Longitude, latitude, longitude);
+
+                if (minDistance > distance)
+                {
+                    nearbyPlace.Id = place.Id;
+                    minDistance = distance;
+                }
             }
+            //var response = this.Request.CreateResponse(HttpStatusCode.OK, nearbyPlace.Id);
+            return nearbyPlace.Id;
+
         }
 
-        private bool IsInProximity(double placeLatitude, double placeLongitude, double userLatitude, double userLongitude)
+        private double IsInProximity(double placeLatitude, double placeLongitude, double userLatitude, double userLongitude)
         {
             double dDistance = Double.MinValue;
             double dLat1InRad = placeLatitude * (Math.PI / 180.0);
@@ -199,10 +202,10 @@ namespace NationalPlaces.Services.Controllers
 
             if (dDistance <= 111.30 && dDistance>111.28)
             {
-                return true;
+                return dDistance;
             }
 
-            return false;
+            return double.MaxValue;
         }
     }
 }
