@@ -117,47 +117,28 @@ namespace NationalPlaces.Services.Controllers
 
         [HttpPost]
         [ActionName("checkIn")]
-        public HttpResponseMessage CheckIn(string sessionKey, double longitude, double latitude)
+        public HttpResponseMessage CheckIn(string sessionKey, int placeId)
         {
             try
             {
                 var context = new NationalPlacesContext();
                 var user = context.Users.FirstOrDefault(u => u.SessionKey == sessionKey);
-                if(user==null)
+                if (user == null)
                 {
                     throw new Exception("You must be logged in to check in.");
                 }
 
-                NationalPlaceModel nearbyPlace=new NationalPlaceModel();
-                foreach (var place in context.Places)
-                {
-                    if (IsInProximity(place.Latitude, place.Longitude, latitude, longitude))
-                    {
-                        place.Users.Add(user);
-                        nearbyPlace.Id = place.Id;
-                        nearbyPlace.Name = place.Name;
-                        break;
-                    }
-                }
-                
+                var place=context.Places.FirstOrDefault(p => p.Id == placeId);
+                place.Users.Add(user);
                 context.SaveChanges();
-                context.Dispose();
-                if (nearbyPlace.Name != null)
-                {
-                    var response = this.Request.CreateResponse(HttpStatusCode.OK,
-                                                               "You are checked in from: " + nearbyPlace.Name);
-                    return response;
-                }
-                else
-                {
-                    var response = this.Request.CreateResponse(HttpStatusCode.BadRequest,
-                                                               "You are not near to any object of our application." );
-                    return response;
-                }
+                var response = this.Request.CreateResponse(HttpStatusCode.OK,
+                                                           "You are checked in from: " + place.Name);
+                return response;
+
             }
             catch (Exception ex)
             {
-                var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
                 return response;
             }
         }
@@ -181,7 +162,7 @@ namespace NationalPlaces.Services.Controllers
                         models.Add(currentModel);
                     }
                 }
-                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+                var response = this.Request.CreateResponse(HttpStatusCode.OK, models);
                 return response;
             }
             catch (Exception ex)
@@ -193,10 +174,30 @@ namespace NationalPlaces.Services.Controllers
 
         private bool IsInProximity(double placeLatitude, double placeLongitude, double userLatitude, double userLongitude)
         {
-            var distance = Math.Sqrt((placeLatitude - userLatitude) * (placeLatitude - userLatitude) +
-                (placeLongitude - userLongitude) * (placeLongitude - userLongitude));
+            double dDistance = Double.MinValue;
+            double dLat1InRad = placeLatitude * (Math.PI / 180.0);
+            double dLong1InRad = placeLongitude * (Math.PI / 180.0);
+            double dLat2InRad = userLatitude * (Math.PI / 180.0);
+            double dLong2InRad = userLongitude * (Math.PI / 180.0);
 
-            if (distance <= 1000)
+            double dLongitude = dLong2InRad - dLong1InRad;
+            double dLatitude = dLat2InRad - dLat1InRad;
+
+            // Intermediate result a.
+            double a = Math.Pow(Math.Sin(dLatitude / 2.0), 2.0) +
+                       Math.Cos(dLat1InRad) * Math.Cos(dLat2InRad) *
+                       Math.Pow(Math.Sin(dLongitude / 2.0), 2.0);
+
+            // Intermediate result c (great circle distance in Radians).
+            double c = 2.0 * Math.Asin(Math.Sqrt(a));
+
+            // Distance.
+            // const Double kEarthRadiusMiles = 3956.0;
+            const Double kEarthRadiusKms = 6376.5;
+            dDistance = kEarthRadiusKms * c;
+
+
+            if (dDistance <= 111.30 && dDistance>111.28)
             {
                 return true;
             }
