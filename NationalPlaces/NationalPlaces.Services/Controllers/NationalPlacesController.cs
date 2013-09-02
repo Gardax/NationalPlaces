@@ -142,8 +142,18 @@ namespace NationalPlaces.Services.Controllers
                 
                 context.SaveChanges();
                 context.Dispose();
-                var response = this.Request.CreateResponse(HttpStatusCode.OK, "You are checked in from: "+nearbyPlace.Name);
-                return response;
+                if (nearbyPlace.Name != null)
+                {
+                    var response = this.Request.CreateResponse(HttpStatusCode.OK,
+                                                               "You are checked in from: " + nearbyPlace.Name);
+                    return response;
+                }
+                else
+                {
+                    var response = this.Request.CreateResponse(HttpStatusCode.BadRequest,
+                                                               "You are not near to any object of our application." );
+                    return response;
+                }
             }
             catch (Exception ex)
             {
