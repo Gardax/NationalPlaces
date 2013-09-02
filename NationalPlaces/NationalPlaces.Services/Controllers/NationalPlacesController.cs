@@ -117,7 +117,7 @@ namespace NationalPlaces.Services.Controllers
 
         [HttpPost]
         [ActionName("checkIn")]
-        public HttpResponseMessage CheckIn(string sessionKey, int placeId)
+        public HttpResponseMessage CheckIn(string sessionKey, double longitude, double latitude)
         {
             try
             {
@@ -128,11 +128,11 @@ namespace NationalPlaces.Services.Controllers
                     throw new Exception("You must be logged in to check in.");
                 }
 
-                var place = context.Places.FirstOrDefault(p => p.Id == placeId);
+                var place = context.Places.FirstOrDefault(p => IsInProximity(p.Latitude, p.Longitude, latitude, longitude));
                 place.Users.Add(user);
                 context.SaveChanges();
 
-                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+                var response = this.Request.CreateResponse(HttpStatusCode.OK, "You are checked in from :"+place.Name);
                 return response;
             }
             catch (Exception ex)
