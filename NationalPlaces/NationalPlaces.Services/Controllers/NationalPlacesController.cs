@@ -162,7 +162,7 @@ namespace NationalPlaces.Services.Controllers
             double minDistance = double.MaxValue;
             foreach (var place in context.Places)
             {
-                double distance = IsInProximity(place.Latitude, place.Longitude, latitude, longitude);
+                double distance = CheckDistance(place.Latitude, place.Longitude, latitude, longitude);
 
                 if (minDistance > distance)
                 {
@@ -175,9 +175,9 @@ namespace NationalPlaces.Services.Controllers
 
         }
 
-        private double IsInProximity(double placeLatitude, double placeLongitude, double userLatitude, double userLongitude)
+        private double CheckDistance(double placeLatitude, double placeLongitude, double userLatitude, double userLongitude)
         {
-            double dDistance = Double.MinValue;
+
             double dLat1InRad = placeLatitude * (Math.PI / 180.0);
             double dLong1InRad = placeLongitude * (Math.PI / 180.0);
             double dLat2InRad = userLatitude * (Math.PI / 180.0);
@@ -197,15 +197,8 @@ namespace NationalPlaces.Services.Controllers
             // Distance.
             // const Double kEarthRadiusMiles = 3956.0;
             const Double kEarthRadiusKms = 6376.5;
-            dDistance = kEarthRadiusKms * c;
-
-
-            if (dDistance <= 111.30 && dDistance>111.28)
-            {
-                return dDistance;
-            }
-
-            return double.MaxValue;
+            double dDistance = kEarthRadiusKms * c;
+            return dDistance;
         }
     }
 }
