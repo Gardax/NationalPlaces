@@ -17,6 +17,10 @@ namespace NationalPlaces.Models
 
         public string PictureUrl { get; set; }
 
+        public double Longitude { get; set; }
+
+        public double Latitude { get; set; }
+
         public virtual ICollection<User> Users { get; set; }
  
         public Place()

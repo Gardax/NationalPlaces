@@ -15,6 +15,10 @@ namespace NationalPlaces.Services.Models
 
         public string Town { get; set; }
 
+        public double Longitude { get; set; }
+
+        public double Latitude { get; set; }
+
         public string PictureUrl { get; set; }
     }
 }

@@ -46,7 +46,9 @@ namespace NationalPlaces.Services.Controllers
                                              Name = place.Name,
                                              Description = place.Description,
                                              Town = town,
-                                             PictureUrl = place.PictureUrl
+                                             PictureUrl = place.PictureUrl,
+                                             Latitude=place.Latitude,
+                                             Longitude = place.Longitude
                                          };
 
                     context.Places.Add(newPlace);
@@ -138,6 +140,48 @@ namespace NationalPlaces.Services.Controllers
                 var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
                 return response;
             }
+        }
+
+        [HttpGet]
+        [ActionName("nearbyPlaces")]
+        public HttpResponseMessage GetNearbyPlaces(double latitude, double longitude)
+        {
+            try
+            {
+                var context = new NationalPlacesContext();
+                List<NationalPlaceModel> models = new List<NationalPlaceModel>();
+                foreach (var place in context.Places)
+                {
+                    if (IsInProximity(place.Latitude, place.Longitude, latitude, longitude))
+                    {
+
+                        NationalPlaceModel currentModel = new NationalPlaceModel();
+                        currentModel.Id = place.Id;
+                        currentModel.Name = place.Name;
+                        models.Add(currentModel);
+                    }
+                }
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+                return response;
+            }
+        }
+
+        private bool IsInProximity(double placeLatitude, double placeLongitude, double userLatitude, double userLongitude)
+        {
+            var distance = Math.Sqrt((placeLatitude - userLatitude) * (placeLatitude - userLatitude) +
+                (placeLongitude - userLongitude) * (placeLongitude - userLongitude));
+
+            if (distance <= 1000)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
