@@ -127,8 +127,8 @@ namespace NationalPlaces.Services.Controllers
                 {
                     throw new Exception("You must be logged in to check in.");
                 }
-                int? placeId = GetNearbyPlace(latitude, longitude);
-                if (placeId != null)
+                int placeId = GetNearbyPlace(latitude, longitude);
+                if (placeId != 0)
                 {
                     var place = context.Places.FirstOrDefault(p => p.Id == placeId);
                     place.Users.Add(user);
@@ -154,7 +154,7 @@ namespace NationalPlaces.Services.Controllers
 
         //[HttpGet]
         //[ActionName("nearbyPlaces")]
-        public int? GetNearbyPlace(double latitude, double longitude)
+        public int GetNearbyPlace(double latitude, double longitude)
         {
 
             var context = new NationalPlacesContext();
