@@ -162,7 +162,7 @@ namespace NationalPlaces.Services.Controllers
 
         [HttpPost]
         [ActionName("addPicture")]
-        public HttpResponseMessage addPicture(string sessionKey, string url)
+        public HttpResponseMessage PostAddPicture(string sessionKey, string url)
         {
             try
             {
