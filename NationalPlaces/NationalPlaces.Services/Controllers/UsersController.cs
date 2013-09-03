@@ -215,6 +215,33 @@ namespace NationalPlaces.Services.Controllers
             }
         }
 
+        [HttpGet]
+        [ActionName("getPictures")]
+        public HttpResponseMessage GetPictures(string sessionKey)
+        {
+            try
+            {
+                var contex = new NationalPlacesContext();
+                var user = contex.Users.FirstOrDefault(u => u.SessionKey == sessionKey);
+                if (user == null)
+                {
+                    throw new Exception("You must be logged in to get pictures.");
+                }
+
+                var pictures = from picture in user.Pictures
+                               select picture.PictureUrl;
+
+                var response = this.Request.CreateResponse(HttpStatusCode.OK, pictures);
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                var response = this.Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                return response;
+            }
+        }
+
         private void ValidateAuthCode(string authCode)
         {
             if (authCode == null || authCode.Length != Sha1Length)
